@@ -11,8 +11,8 @@ from google_play_scraper import app, Sort, reviews, reviews_all
 from tinydb import Query, TinyDB
 from tinydb.storages import JSONStorage
 
-ios_app_list = ["1071766252"]
-aos_app_list = ["kr.co.jbbank.smartbank"]
+ios_app_list = ["1071766252", "1547903285"]
+aos_app_list = ["kr.co.jbbank.smartbank", "kr.co.jbbank.privatebank"]
 str_stars = "★★★★★"
 
 telegram_bot_tokens = '1426590377:AAH7IYl_vZdfcClQcw-PcCkvfkF7cu0S4LQ' #토큰을 설정해 줍니다.
@@ -34,7 +34,12 @@ def ios_review_scrap(countryCode, appId, reviewCount, afterDay):
     for review in jbreview:
         review['date'] = review['date'].strftime('%Y-%m-%d %H:%M:%S')    
         if not (appReview.search(Query().date == review['date'])):
-            reviewStr = "🍎앱스토어(뉴스마트뱅킹) 리뷰 등록!\r\n";
+            if appId == '1071766252':
+                reviewStr = "🍎앱스토어(뉴스마트뱅킹) 리뷰 등록!\r\n"
+            elif appId == '1547903285':
+                reviewStr = "🍎앱스토어(JB뱅크) 리뷰 등록!\r\n"
+            else:
+                reviewStr = ''
             reviewStr += "일  시 : " + review['date']          + "\r\n";
             reviewStr += "평  점 : " + str_stars[0:(review['rating'])] + "\t수정여부 : " + str(review['isEdited']) + "\r\n\r\n"
             reviewStr += "작성자 : " + review['userName']      + "\r\n"
@@ -71,13 +76,18 @@ def aos_review_scrap(countryCode,langCode,appId,reviewCount):
                 review['reviewCreatedVersion'] = '알수없음'
 
         if not (appReview.search(Query().at == str(review['at']))):
-            reviewStr = "플레이스토어(뉴스마트뱅킹) 리뷰 등록!\r\n";
+            if appId == 'kr.co.jbbank.smartbank':
+                reviewStr = "✉️플레이스토어(뉴스마트뱅킹) 리뷰 등록!\r\n"
+            elif appId == 'kr.co.jbbank.privatebank':
+                reviewStr = "✉️플레이스토어(JB뱅크) 리뷰 등록!\r\n"
+            else:
+                reviewStr = ''
             reviewStr += "일  시 : " + str(review['at'])          + "\r\n";
             reviewStr += "평  점 : " + str_stars[0:(review['score'])] 
             reviewStr += "앱버전 : " + review['reviewCreatedVersion'] + "\r\n\r\n"
             reviewStr += "작성자 : " + review['userName']      + "\r\n"
             #reviewStr += "제  목 : " + review['title']         + "\r\n"
-            reviewStr += "내  용 : " + review['content']       
+            reviewStr += "내  용 : " + review['content']   
  
             #print(json.dumps(review), default=json_serial)
             appReview.insert((review))
